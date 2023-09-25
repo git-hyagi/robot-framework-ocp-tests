@@ -1,0 +1,23 @@
+{
+    "podAntiAffinity": {
+        "preferredDuringSchedulingIgnoredDuringExecution": [
+            {
+                "podAffinityTerm": {
+                    "labelSelector": {
+                        "matchExpressions": [
+                            {
+                                "key": "app.kubernetes.io/component",
+                                "operator": "In",
+                                "values": [
+                                    "content"
+                                ]
+                            }
+                        ]
+                    },
+                    "topologyKey": "topology.kubernetes.io/zone"
+                },
+                "weight": 100
+            }
+        ]
+    }
+}

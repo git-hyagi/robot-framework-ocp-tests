@@ -1,37 +1,46 @@
 *** Settings ***
 Library     Process
+Library     OperatingSystem
 Resource    vars.robot
-Test Setup       Set expected Api Affinity configuration
 
 *** Test Cases ***
 
 Ensure anti-affinity rules for API pods
-    ${result}    Run Process     ${get_pulp} -ojsonpath\='{.spec.api.affinity}'   stderr=STDOUT  shell=yes
-    Log     ${result.stdout}
-    ${result_json}  Evaluate    json.loads("""${result.stdout}""")    modules=json
-    Log     ${result_json}
+    ${cr_affinity}    Run Process     ${get_pulp} -ojsonpath\='{.spec.api.affinity}'   stderr=STDOUT  shell=yes
+    Log     ${cr_affinity.stdout}
+    ${cr_affinity_json}  Evaluate    json.loads("""${cr_affinity.stdout}""")    modules=json
+    Log     ${cr_affinity_json}
+
     
-    
-    ${json_api_affinity}        Evaluate       json.loads("""${expected_api_affinity}""")       modules=json
-    Log     ${json_api_affinity}
-    Should Be Equal     ${result_json}  ${json_api_affinity}
+    ${pod_affinity}    Run Process     ${oc} get pods -l ${api_label} -ojsonpath\='{.items[0].spec.affinity}'   stderr=STDOUT  shell=yes
+    Log     ${pod_affinity.stdout}
+    ${pod_affinity_json}  Evaluate    json.loads("""${pod_affinity.stdout}""")    modules=json
+    Log     ${pod_affinity_json}
+
+    ${expected_affinity}    Get File    manifests/api_affinity.json
+    ${expected_affinity_json}        Evaluate       json.loads('''${expected_affinity}''')       modules=json
+    Log     ${expected_affinity_json}
 
 
-*** Keywords ***
+    Should Be Equal     ${cr_affinity_json}  ${expected_affinity_json}
+    Should Be Equal     ${pod_affinity_json}  ${expected_affinity_json}
 
-## affinity rules tests
-Set expected Api Affinity configuration
-    ${expected_api_affinity}    catenate
-    ...     {
-    ...         "podAntiAffinity":{
-    ...             "preferredDuringSchedulingIgnoredDuringExecution":[{
-    ...                 "podAffinityTerm": {
-    ...                     "labelSelector": {
-    ...                         "matchExpressions": [
-    ...                             {"key":"app.kubernetes.io/component","operator":"In","values":["api"]}
-    ...                         ]
-    ...                     },
-    ...                     "topologyKey":"topology.kubernetes.io/zone"
-    ...                 },
-    ...             "weight":100
-    ...     }]}}
+Ensure anti-affinity rules for Content pods
+    ${cr_affinity}    Run Process     ${get_pulp} -ojsonpath\='{.spec.content.affinity}'   stderr=STDOUT  shell=yes
+    Log     ${cr_affinity.stdout}
+    ${cr_affinity_json}  Evaluate    json.loads("""${cr_affinity.stdout}""")    modules=json
+    Log     ${cr_affinity_json}
+
+
+    ${pod_affinity}    Run Process     ${oc} get pods -l ${content_label} -ojsonpath\='{.items[0].spec.affinity}'   stderr=STDOUT  shell=yes
+    Log     ${pod_affinity.stdout}
+    ${pod_affinity_json}  Evaluate    json.loads("""${pod_affinity.stdout}""")    modules=json
+    Log     ${pod_affinity_json}
+
+    ${expected_affinity}    Get File    manifests/content_affinity.json
+    ${expected_affinity_json}        Evaluate       json.loads('''${expected_affinity}''')       modules=json
+    Log     ${expected_affinity_json}
+
+
+    Should Be Equal     ${cr_affinity_json}  ${expected_affinity_json}
+    Should Be Equal     ${pod_affinity_json}  ${expected_affinity_json}
