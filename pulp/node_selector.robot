@@ -1,27 +1,30 @@
 *** Settings ***
 Library     Process
 Library     OperatingSystem
+Library     String
 Resource    vars.robot
 
 *** Test Cases ***
 
 Ensure worker pods have the correct nodeSelector
     ${cr_node_selector}         Run Process         ${get_pulp} -ojsonpath\='{.spec.worker.node_selector}'   stderr=STDOUT  shell=yes
-    Log                         ${cr_pdb.stdout}
-    ${cr_pdb_json}              Evaluate            json.loads("""${cr_pdb.stdout}""")    modules=json
-    Log                         ${cr_pdb_json}
+    Log                         ${cr_node_selector.stdout}
+    ${cr_node_selector_json}    Evaluate            json.loads("""${cr_node_selector.stdout}""")    modules=json
+    Log                         ${cr_node_selector_json}
 
-    ${nodes}                    Run Process         ${oc} get nodes -l ${worker_node_selector}    stderr=STDOUT  shell=yes
+    ${nodes}                    Run Process         ${oc} get nodes -l ${worker_node_selector} -ojsonpath\='{.items[*].status.addresses[0].address}'    stderr=STDOUT  shell=yes
     Log                         ${nodes.stdout}
-    ${nodes_json}               Evaluate            json.loads("""${nodes.stdout}""")    modules=json
-    Log                         ${nodes_json}
+    @{nodes}                    Split String        ${nodes.stdout}
+    Log Many                    @{nodes}
 
-    ${pod}                      Run Process         ${oc} get pods -l ${worker_label} -ojsonpath\='{.items[0].status.host}'   stderr=STDOUT  shell=yes
-    Log     ${pod.stdout}
-    ${pod}  Evaluate    json.loads("""${pod.stdout}""")    modules=json
-    Log     ${pod_json}
+    ${pod_node}                      Run Process         ${oc} get pods -l ${worker_label} -ojsonpath\='{.items[0].status.hostIP}'   stderr=STDOUT  shell=yes
+    Log     ${pod_node.stdout}
 
-    Should Be True             ${pod_json} in ${nodes}
-#    List Should Contain Value     ${models}     train-again-v1-16k
-#    Should Contain    ${models}    sourcemodel8k8020-v1-8k
+    Set Local Variable    ${found_node}       ${False}
+    FOR     ${NODE}     IN      @{nodes}
+        IF  $pod_node.stdout == $NODE
+            Set Local Variable      ${found_node}       ${True}
+        END
+    END
 
+    Should Be True             ${found_node}
