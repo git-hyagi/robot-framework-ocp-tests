@@ -4,8 +4,13 @@ ${oc}                   /usr/bin/oc -n ${project_name}
 ${pulp_resource_name}   test-pulp-ha
 ${get_pulp}             ${oc} get pulp ${pulp_resource_name}
 ${pulp_cli}             ~/.local/bin/pulp
-${pulp_user}            pulp
+${pulp_user}            admin
 ${pulp_pwd}             password
+${TEST_FILE_PATH}       ~/Downloads/go1.19.linux-amd64.tar.gz
+${TEST_FILE_NAME}       go.tar.gz
+${TEST_FILE_SHA}        464b6b66591f6cf055bc5df90a9750bf5fbc9d038722bb84a9d56a2bea974be6
+${TEST_FILE_REPO}       foo
+${TEST_FILE_DISTRIBUTION}       bar
 
 ## labels
 ${api_label}            app.kubernetes.io/component=api

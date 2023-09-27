@@ -36,7 +36,7 @@ stringData:
   s3-access-key-id: 'AKIAIT2Z5TDYPX3ARJBA'
   s3-secret-access-key: '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'
   s3-bucket-name: 'pulp3'
-  s3-endpoint: http://minio.minio.svc:9000
+  s3-endpoint: http://minio-minio.apps.ci-ln-bb0ib9k-76ef8.aws-2.ci.openshift.org
 EOF
 
 kubectl apply -f-<<EOF

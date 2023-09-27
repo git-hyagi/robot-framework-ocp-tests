@@ -51,6 +51,7 @@ spec:
   type: NodePort
 EOF
 
+oc -nminio expose svc minio
 oc -nminio wait --for=jsonpath='{.status.phase}'=Running pod/minio
 oc exec -it minio -- mc config host add s3 http://localhost:9000 AKIAIT2Z5TDYPX3ARJBA fqRvjWaPU5o0fCqQuUWbj9Fainj2pVZtBCiDiieS --api S3v4
 oc exec -it minio -- mc config host rm local
