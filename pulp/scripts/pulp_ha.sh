@@ -48,8 +48,8 @@ spec:
     pdb:
       minAvailable: 2
     replicas: 6
-    node_selector:
-      is_spot_instance: "true"
+#    node_selector:
+#      is_spot_instance: "true"
   web:
     replicas: 1
   database:

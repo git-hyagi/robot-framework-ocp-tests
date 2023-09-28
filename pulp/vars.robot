@@ -11,6 +11,7 @@ ${TEST_FILE_NAME}       go.tar.gz
 ${TEST_FILE_SHA}        464b6b66591f6cf055bc5df90a9750bf5fbc9d038722bb84a9d56a2bea974be6
 ${TEST_FILE_REPO}       foo
 ${TEST_FILE_DISTRIBUTION}       bar
+${TEST_REPO_SYNC}       http://fedora.c3sl.ufpr.br/linux/updates/38/Everything/x86_64/
 
 ## labels
 ${api_label}            app.kubernetes.io/component=api
